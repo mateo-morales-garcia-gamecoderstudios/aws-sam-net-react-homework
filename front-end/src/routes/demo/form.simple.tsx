@@ -10,6 +10,7 @@ export const Route = createFileRoute('/demo/form/simple')({
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
+  foo: z.boolean(),
 })
 
 function SimpleForm() {
@@ -17,6 +18,7 @@ function SimpleForm() {
     defaultValues: {
       title: '',
       description: '',
+      foo: false,
     },
     validators: {
       onBlur: schema,
@@ -51,6 +53,10 @@ function SimpleForm() {
 
           <form.AppField name="description">
             {(field) => <field.TextArea label="Description" />}
+          </form.AppField>
+
+          <form.AppField name="foo">
+            {(field) => <field.Switch label="foo" />}
           </form.AppField>
 
           <div className="flex justify-end">
