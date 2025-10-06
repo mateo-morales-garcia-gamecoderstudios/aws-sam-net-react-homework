@@ -22,15 +22,33 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
+          JWT_SECRET: "Some JWT Secret TEju99W=Vfd{$`REZA-+;vz01V!SH),Oz1v;HjV2"
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /hello
             Method: get
-      Environment:
-        Variables:
-          JWT_SECRET: "Some JWT Secret TEju99W=Vfd{$`REZA-+;vz01V!SH),Oz1v;HjV2"
+  RewardsApi:
+    Type: AWS::Serverless::Function
+    Properties:
+        Handler: RewardsApi::RewardsApi.LambdaEntryPoint::FunctionHandlerAsync
+        Runtime: dotnet8
+        CodeUri: ./src/RewardsApi/
+        Policies: [
+          AWSLambda_FullAccess
+        ]
+        Events: 
+          ProxyResource: 
+            Type: Api
+            Properties: 
+              Path: /{proxy+}
+              Method: ANY
+          RootResource: 
+            Type: Api
+            Properties: 
+              Path: /
+              Method: ANY
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
