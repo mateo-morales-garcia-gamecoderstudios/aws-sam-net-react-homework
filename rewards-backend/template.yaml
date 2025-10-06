@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Sample SAM Template for rewards-backend
@@ -28,6 +28,24 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/Login/
+      Handler: bootstrap
+      Runtime: dotnet8
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        Login:
+          Type: Api
+          Properties:
+            Path: /login
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -42,3 +60,12 @@ Outputs:
   HelloWorldAotFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldAotFunctionRole.Arn
+  LoginApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
+  LoginFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt LoginFunction.Arn
+  LoginFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt LoginFunctionRole.Arn
