@@ -17,6 +17,7 @@ Resources:
   RewardsApi:
     Type: AWS::Serverless::Api
     Properties:
+      StageName: Prod # Define the Stage Name once
       Auth:
         Authorizers:
           JwtAuthorizer: # Logical ID of the Authorizer
