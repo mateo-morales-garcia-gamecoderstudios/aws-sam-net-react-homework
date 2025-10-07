@@ -2,12 +2,12 @@ using System.Text.Json;
 
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
-using System.Net;
 using MongoDB.Driver;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using SharedValidator;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -34,7 +34,7 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        (LoginRequest? loginRequest, APIGatewayProxyResponse? error) = ValidateAndDeserialize<LoginRequest>(request.Body);
+        (LoginRequest? loginRequest, APIGatewayProxyResponse? error) = RequestValidator.ValidateAndDeserialize<LoginRequest>(request.Body);
         if (error is not null)
         {
             return error;
@@ -88,39 +88,4 @@ public class Function
         return BCrypt.Net.BCrypt.Verify(providedPassword, storedHash);
     }
 
-    // todo: maybe this can be moved to layer
-    public static (T? Data, APIGatewayProxyResponse? ErrorResponse) ValidateAndDeserialize<T>(string jsonBody) where T : class
-    {
-        try
-        {
-            T? data = JsonSerializer.Deserialize<T>(jsonBody);
-            if (data == null)
-            {
-                return (null, CreateErrorResponse("Request body is empty or invalid.", HttpStatusCode.BadRequest));
-            }
-            return (data, null);
-        }
-        catch (JsonException ex)
-        {
-            // Catch the exception if the JSON is malformed
-            string errorMessage = $"Invalid JSON format: {ex.Message}";
-            return (null, CreateErrorResponse(errorMessage, HttpStatusCode.BadRequest));
-        }
-        catch (Exception ex)
-        {
-            // Catch any other unexpected exceptions
-            string errorMessage = $"An unexpected error occurred during processing: {ex.Message}";
-            return (null, CreateErrorResponse(errorMessage, HttpStatusCode.InternalServerError));
-        }
-    }
-
-    private static APIGatewayProxyResponse CreateErrorResponse(string message, HttpStatusCode statusCode)
-    {
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = (int)statusCode,
-            Body = JsonSerializer.Serialize(new { Error = message }),
-            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        };
-    }
 }
