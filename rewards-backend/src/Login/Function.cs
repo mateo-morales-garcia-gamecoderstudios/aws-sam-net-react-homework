@@ -1,69 +1,126 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Net.Http;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using Amazon.Lambda.Core;
-using Amazon.Lambda.RuntimeSupport;
 using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.Serialization.SystemTextJson;
+using System.Net;
+using MongoDB.Driver;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+
+// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace Login;
 
 public class Function
 {
-    private static readonly HttpClient client = new HttpClient();
-    
-    /// <summary>
-    /// The main entry point for the Lambda function. The main function is called once during the Lambda init phase. It
-    /// initializes the .NET Lambda runtime client passing in the function handler to invoke for each Lambda event and
-    /// the JSON serializer to use for converting Lambda JSON format to the .NET types. 
-    /// </summary>
-    private static async Task Main()
+
+    private static readonly IMongoClient dbClient;
+    private static readonly IMongoDatabase db;
+
+    private static readonly string jwtSecret;
+
+    static Function()
     {
-        Func<APIGatewayHttpApiV2ProxyRequest, ILambdaContext, Task<APIGatewayHttpApiV2ProxyResponse>> handler = FunctionHandler;
-        await LambdaBootstrapBuilder.Create(handler, new SourceGeneratorLambdaJsonSerializer<LambdaFunctionJsonSerializerContext>())
-            .Build()
-            .RunAsync();
+        jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Exception("Missing JWT configuration");
+
+        // Recommended: Use AWS Secrets Manager for connection string // todo: how to stet up this?
+        var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? throw new Exception("Missing DATABASE_URL configuration"); ;
+        dbClient = new MongoClient(connectionString);
+        db = dbClient.GetDatabase("rewards");
     }
 
-    private static async Task<string> GetCallingIP()
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        client.DefaultRequestHeaders.Accept.Clear();
-        client.DefaultRequestHeaders.Add("User-Agent", "AWS Lambda .Net Client");
-
-        var msg = await client.GetStringAsync("http://checkip.amazonaws.com/").ConfigureAwait(continueOnCapturedContext:false);
-
-        return msg.Replace("\n","");
-    }
-
-    public static async Task<APIGatewayHttpApiV2ProxyResponse> FunctionHandler(APIGatewayHttpApiV2ProxyRequest apigProxyEvent, ILambdaContext context)
-    {
-
-        var location = await GetCallingIP();
-        var body = new Dictionary<string, string>
+        (LoginRequest? loginRequest, APIGatewayProxyResponse? error) = ValidateAndDeserialize<LoginRequest>(request.Body);
+        if (error is not null)
         {
-            { "message", "hello world" },
-            { "location", location }
+            return error;
+        }
+
+        var usersCollection = db.GetCollection<User>("users");
+
+        // 1. Find user in MongoDB
+        var user = await usersCollection.Find(u => u.Email == loginRequest!.Email).FirstOrDefaultAsync();
+        if (user == null || !VerifyPassword(loginRequest!.Password, user.HashedPassword))
+        {
+            return new APIGatewayProxyResponse { StatusCode = 401, Body = "Invalid credentials" };
+        }
+
+        // 2. Create JWT claims
+        var claims = new List<Claim>
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
-        return new APIGatewayHttpApiV2ProxyResponse
+        // 3. Generate the JWT
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(jwtSecret);
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Body = JsonSerializer.Serialize(body, typeof(Dictionary<string, string>), LambdaFunctionJsonSerializerContext.Default),
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(1), // Token expiration
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+        };
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        var loginResponse = new LoginResponse { Token = tokenHandler.WriteToken(token) };
+        var jsonResponse = JsonSerializer.Serialize(loginResponse);
+
+        var cookieString = $"JWT_SESSION={loginResponse.Token}; HttpOnly; Secure; SameSite=Strict; Path=/; Expires={DateTime.UtcNow.AddMinutes(30).ToString("R")}";
+
+        return new APIGatewayProxyResponse
+        {
             StatusCode = 200,
+            Body = jsonResponse,
+            Headers = new Dictionary<string, string> {
+                { "Content-Type", "application/json" },
+                { "Set-Cookie", cookieString }
+            }
+        };
+    }
+
+    private static bool VerifyPassword(string providedPassword, string storedHash)
+    {
+        return BCrypt.Net.BCrypt.Verify(providedPassword, storedHash);
+    }
+
+    // todo: maybe this can be moved to layer
+    public static (T? Data, APIGatewayProxyResponse? ErrorResponse) ValidateAndDeserialize<T>(string jsonBody) where T : class
+    {
+        try
+        {
+            T? data = JsonSerializer.Deserialize<T>(jsonBody);
+            if (data == null)
+            {
+                return (null, CreateErrorResponse("Request body is empty or invalid.", HttpStatusCode.BadRequest));
+            }
+            return (data, null);
+        }
+        catch (JsonException ex)
+        {
+            // Catch the exception if the JSON is malformed
+            string errorMessage = $"Invalid JSON format: {ex.Message}";
+            return (null, CreateErrorResponse(errorMessage, HttpStatusCode.BadRequest));
+        }
+        catch (Exception ex)
+        {
+            // Catch any other unexpected exceptions
+            string errorMessage = $"An unexpected error occurred during processing: {ex.Message}";
+            return (null, CreateErrorResponse(errorMessage, HttpStatusCode.InternalServerError));
+        }
+    }
+
+    private static APIGatewayProxyResponse CreateErrorResponse(string message, HttpStatusCode statusCode)
+    {
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = (int)statusCode,
+            Body = JsonSerializer.Serialize(new { Error = message }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
-}
-
-[JsonSerializable(typeof(APIGatewayHttpApiV2ProxyRequest))]
-[JsonSerializable(typeof(APIGatewayHttpApiV2ProxyResponse))]
-[JsonSerializable(typeof(Dictionary<string, string>))]
-public partial class LambdaFunctionJsonSerializerContext : JsonSerializerContext
-{
-    // By using this partial class derived from JsonSerializerContext, we can generate reflection free JSON Serializer code at compile time
-    // which can deserialize our class and properties. However, we must attribute this class to tell it what types to generate serialization code for.
-    // See https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-source-generation
 }

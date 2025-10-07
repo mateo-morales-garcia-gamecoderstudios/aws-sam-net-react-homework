@@ -26,9 +26,9 @@ public class FunctionTest
   }
 
   [Fact]
-  public async Task TestHelloWorldFunctionHandler()
+  public async Task TestLoginFunctionHandler()
   {
-          var request = new APIGatewayHttpApiV2ProxyRequest();
+          var request = new APIGatewayProxyRequest();
           var context = new TestLambdaContext();
           string location = GetCallingIP().Result;
           Dictionary<string, string> body = new Dictionary<string, string>
@@ -37,14 +37,15 @@ public class FunctionTest
               { "location", location },
           };
 
-          var expectedResponse = new APIGatewayHttpApiV2ProxyResponse
+          var expectedResponse = new APIGatewayProxyResponse
           {
               Body = JsonSerializer.Serialize(body),
               StatusCode = 200,
               Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
           };
 
-          var response = await Function.FunctionHandler(request, context);
+          var function = new Function();
+          var response = await function.FunctionHandler(request, context);
 
           Console.WriteLine("Lambda Response: \n" + response.Body);
           Console.WriteLine("Expected Response: \n" + expectedResponse.Body);
