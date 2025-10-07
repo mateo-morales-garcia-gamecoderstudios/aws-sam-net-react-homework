@@ -15,8 +15,6 @@ public class Function
     private static readonly IMongoClient dbClient;
     private static readonly IMongoDatabase db;
 
-    private static readonly string jwtSecret;
-
     static Function()
     {
         // Recommended: Use AWS Secrets Manager for connection string // todo: how to stet up this?
