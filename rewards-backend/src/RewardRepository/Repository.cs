@@ -13,19 +13,11 @@ public class Repository : IRepository
         collection = db.GetCollection<RewardEntity>("rewards");
     }
 
-    public async Task<bool> CreateAsync(RewardEntity reward)
+    public async Task<RewardEntity> CreateAsync(RewardEntity reward)
     {
-        try
-        {
-            await collection.InsertOneAsync(reward);
-            Console.WriteLine("Reward {} is added", reward.Id);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString(), "fail to persist to MongoDB Collection");
-            return false;
-        }
-        return true;
+        await collection.InsertOneAsync(reward);
+        Console.WriteLine($"Reward {reward.Id} is added");
+        return reward;
     }
 
     public async Task<bool> UpdateAsync(RewardEntity reward)
@@ -38,19 +30,19 @@ public class Repository : IRepository
 
             if (result.IsAcknowledged && result.ModifiedCount > 0)
             {
-                Console.WriteLine("Reward {} is updated", reward.Id);
+                Console.WriteLine($"Reward {reward.Id} is updated");
                 return true;
             }
 
             if (result.ModifiedCount == 0)
             {
-                Console.WriteLine("Reward {} not found for update", reward.Id);
+                Console.WriteLine($"Reward {reward.Id} not found for update");
             }
             return false;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString(), "fail to persist to MongoDB Collection");
+            Console.WriteLine(ex.ToString() + "fail to persist to MongoDB Collection");
             return false;
         }
     }
@@ -64,18 +56,18 @@ public class Repository : IRepository
             var result = await collection.DeleteOneAsync(filter);
             if (result.IsAcknowledged && result.DeletedCount > 0)
             {
-                Console.WriteLine("Reward {} is deleted", id);
+                Console.WriteLine($"Reward {id} is deleted");
                 return true;
             }
             if (result.DeletedCount == 0)
             {
-                Console.WriteLine("Reward {} not found for delete", id);
+                Console.WriteLine($"Reward {id} not found for delete");
             }
             return false;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString(), "fail to persist to MongoDB Collection");
+            Console.WriteLine(ex.ToString() + "fail to persist to MongoDB Collection");
             return false;
         }
     }

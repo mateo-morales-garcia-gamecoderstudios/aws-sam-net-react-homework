@@ -35,4 +35,26 @@ public class RewardEntity : IJsonOnDeserialized
             throw new JsonException($"Required property 'ImageUrl' must have a non-null value.");
         }
     }
+    public RewardDto ToDto()
+    {
+        return new RewardDto
+        {
+            Id = Id.ToString(),
+            Name = Name,
+            Description = Description,
+            Price = Price,
+            Category = Category,
+            ImageUrl = ImageUrl,
+        };
+    }
+}
+
+public class RewardDto
+{
+    public required string Id { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
+    public required double Price { get; set; }
+    public required string Category { get; set; }
+    public required string ImageUrl { get; set; }
 }

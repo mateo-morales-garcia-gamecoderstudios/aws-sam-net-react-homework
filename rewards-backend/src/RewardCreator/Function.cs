@@ -3,6 +3,7 @@ using System.Text.Json;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
 using MongoDB.Driver;
+using RewardRepository;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -25,13 +26,18 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var rewardRepository = new RewardRepository.Repository(db);
-        var body = new Dictionary<string, string>();
+        (RewardEntity? rewardRequest, APIGatewayProxyResponse? error) = SharedValidator.RequestValidator.ValidateAndDeserialize<RewardEntity>(request.Body);
+        if (error is not null)
+        {
+            return error;
+        }
+        var rewardRepository = new Repository(db);
+        var created = await rewardRepository.CreateAsync(rewardRequest!);
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonSerializer.Serialize(body),
+            Body = JsonSerializer.Serialize(created.ToDto()),
             Headers = new Dictionary<string, string> {
                 { "Content-Type", "application/json" },
             }
