@@ -3,6 +3,7 @@ using System.Text.Json;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
 using MongoDB.Driver;
+using MongoDB.Bson;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -25,16 +26,20 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var rewardRepository = new RewardRepository.Repository(db);
-        var body = new Dictionary<string, string>();
-
-        return new APIGatewayProxyResponse
+        if (request.PathParameters.TryGetValue("id", out var rawId) && ObjectId.TryParse(rawId, out var objectId))
         {
-            StatusCode = 200,
-            Body = JsonSerializer.Serialize(body),
-            Headers = new Dictionary<string, string> {
-                { "Content-Type", "application/json" },
-            }
-        };
+            var rewardRepository = new RewardRepository.Repository(db);
+            var ok = await rewardRepository.DeleteAsync(objectId);
+
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = JsonSerializer.Serialize(new { ok }),
+                Headers = new Dictionary<string, string> {
+                    { "Content-Type", "application/json" },
+                }
+            };
+        }
+        return new APIGatewayProxyResponse { StatusCode = 400, Body = "Bad request" };
     }
 }
