@@ -25,12 +25,9 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        // var rewardsCollection = db.GetCollection<User>("rewards");
-
-        var body = new Dictionary<string, string>
-        {
-            { "message", "hello from rewards" },
-        };
+        (int pageNumber, int pageSize, int priceSortDirection, FilterDefinition<RewardRepository.RewardEntity>? filter) = QueryStringDataExtractor.GetData(request.QueryStringParameters);
+        var rewardRepository = new RewardRepository.Repository(db);
+        var body = await rewardRepository.GetRewardsAsync(pageNumber, pageSize, priceSortDirection, filter);
 
         return new APIGatewayProxyResponse
         {

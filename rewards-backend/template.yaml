@@ -52,6 +52,60 @@ Resources:
             Method: post
             Auth:
               Unauthorize: {}
+  RewardCreatorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/RewardCreator/
+      Handler: RewardCreator::RewardCreator.Function::FunctionHandler
+      Runtime: dotnet8
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Events:
+        CreateReward:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RewardsApi
+            Path: /reward
+            Method: post
+            Auth:
+              Authorizer: JwtAuthorizer
+  RewardUpdaterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/RewardUpdater/
+      Handler: RewardUpdater::RewardUpdater.Function::FunctionHandler
+      Runtime: dotnet8
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Events:
+        UpdateReward:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RewardsApi
+            Path: /reward
+            Method: put
+            Auth:
+              Authorizer: JwtAuthorizer
+  RewardDeleterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/RewardDeleter/
+      Handler: RewardDeleter::RewardDeleter.Function::FunctionHandler
+      Runtime: dotnet8
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Events:
+        UpdateReward:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RewardsApi
+            Path: /reward/{id}
+            Method: delete
+            Auth:
+              Authorizer: JwtAuthorizer
   RewardsReaderFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -66,10 +120,21 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref RewardsApi
+            # /rewards?page=0&name=Peanut&category=Food - Condiment&price=asc
             Path: /rewards
             Method: get
+            RequestParameters:
+              - method.request.querystring.name:
+                  Required: false
+              - method.request.querystring.category:
+                  Required: false
+              - method.request.querystring.price:
+                  Required: false
+              - method.request.querystring.page:
+                  Required: false
             Auth:
-              Authorizer: JwtAuthorizer
+              Unauthorize: {}
+              #Authorizer: JwtAuthorizer
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
