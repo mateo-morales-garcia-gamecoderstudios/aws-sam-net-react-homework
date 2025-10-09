@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace RewardRepository;
@@ -20,7 +19,7 @@ public class Repository : IRepository
         return reward;
     }
 
-    public async Task<bool> UpdateAsync(RewardEntity reward)
+    public async Task<bool> UpdateAsync(RewardUpdateObject reward)
     {
         try
         {
@@ -52,7 +51,7 @@ public class Repository : IRepository
         try
         {
             var filter = Builders<RewardEntity>.Filter
-                .Eq(r => r.Id, id);
+                .Eq(r => r.Id, id.ToString());
             var result = await collection.DeleteOneAsync(filter);
             if (result.IsAcknowledged && result.DeletedCount > 0)
             {

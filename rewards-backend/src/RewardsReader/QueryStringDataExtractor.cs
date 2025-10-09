@@ -7,12 +7,6 @@ public class QueryStringDataExtractor
 {
     public static (int pageNumber, int pageSize, int priceSortDirection, FilterDefinition<RewardRepository.RewardEntity> filter) GetData(IDictionary<string, string> queryString)
     {
-        // ! debug
-        foreach (var foo in queryString)
-        {
-            Console.WriteLine(foo.Key + " : " + foo.Value);
-        }
-        // ! debug end
         int pageNumber = 0;
         int pageSize = 100;
         int priceSortDirection = 1;

@@ -1,24 +1,28 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace RewardRepository;
 
 public class RewardEntity : IJsonOnDeserialized
 {
-    public ObjectId Id { get; set; }
+    [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string? Id { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
     public required double Price { get; set; }
     public required string Category { get; set; }
     public required string ImageUrl { get; set; }
-    public void OnDeserialized()
+    public virtual void OnDeserialized()
     {
-        if (string.IsNullOrEmpty(Name.Trim()))
+        if (string.IsNullOrWhiteSpace(Name))
         {
             throw new JsonException($"Required property 'Name' must have a non-null value.");
         }
-        if (string.IsNullOrEmpty(Description.Trim()))
+        if (string.IsNullOrWhiteSpace(Description))
         {
             throw new JsonException($"Required property 'Description' must have a non-null value.");
         }
@@ -26,11 +30,11 @@ public class RewardEntity : IJsonOnDeserialized
         {
             throw new JsonException($"Required property 'Price' be greater than 0.");
         }
-        if (string.IsNullOrEmpty(Category.Trim()))
+        if (string.IsNullOrWhiteSpace(Category))
         {
             throw new JsonException($"Required property 'Category' must have a non-null value.");
         }
-        if (string.IsNullOrEmpty(ImageUrl.Trim()))
+        if (string.IsNullOrWhiteSpace(ImageUrl))
         {
             throw new JsonException($"Required property 'ImageUrl' must have a non-null value.");
         }
@@ -46,6 +50,18 @@ public class RewardEntity : IJsonOnDeserialized
             Category = Category,
             ImageUrl = ImageUrl,
         };
+    }
+}
+
+public class RewardUpdateObject : RewardEntity
+{
+    public override void OnDeserialized()
+    {
+        base.OnDeserialized();
+        if (Id == null)
+        {
+            throw new JsonException($"Required property 'Id' must have a non-null value.");
+        }
     }
 }
 
