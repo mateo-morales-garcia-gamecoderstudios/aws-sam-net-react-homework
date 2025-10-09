@@ -18,6 +18,10 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod # Define the Stage Name once
+      Cors:
+        # AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization'"
+        AllowOrigin: "'*'"
       Auth:
         Authorizers:
           JwtAuthorizer: # Logical ID of the Authorizer
@@ -48,6 +52,7 @@ Resources:
         Login:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
+            RestApiId: !Ref RewardsApi
             Path: /login
             Method: post
             Auth:
@@ -137,15 +142,6 @@ Resources:
               #Authorizer: JwtAuthorizer
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  LoginApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
-  LoginFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt LoginFunction.Arn
-  LoginFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt LoginFunctionRole.Arn
+  RewardsApiEndpoint: # Renamed for clarity
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://!{RewardsApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/"
