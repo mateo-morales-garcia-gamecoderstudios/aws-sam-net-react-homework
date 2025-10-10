@@ -1,5 +1,7 @@
 import { useAppForm } from '@/hooks/login.form';
-import { createFileRoute } from '@tanstack/react-router';
+import { apiFetch } from '@/lib/api';
+import { useAuth } from '@/lib/auth';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import z from 'zod';
 
 export const Route = createFileRoute('/login')({
@@ -7,23 +9,31 @@ export const Route = createFileRoute('/login')({
 })
 
 const schema = z.object({
-  email: z.email().min(1, 'e-mail is required'),
-  password: z.string().min(1, 'password is required'),
+  Email: z.email().min(1, 'e-mail is required'),
+  Password: z.string().min(1, 'password is required'),
 });
 
 function LoginComponent() {
+  const navigate = useNavigate();
+  const { checkSession } = useAuth();
   const form = useAppForm({
     defaultValues: {
-      email: '',
-      password: '',
+      Email: '',
+      Password: '',
     },
     validators: {
       onBlur: schema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       console.log(value);
       // Show success message
-      alert('Form submitted successfully!');
+      await apiFetch('login', {
+        method: 'POST',
+        body: JSON.stringify(value),
+      });
+      await checkSession();
+
+      navigate({ to: '/manage' });
     },
   });
   return <div
@@ -38,11 +48,11 @@ function LoginComponent() {
         }}
         className="space-y-6"
       >
-        <form.AppField name="email">
+        <form.AppField name="Email">
           {(field) => <field.TextField label="e-mail" />}
         </form.AppField>
 
-        <form.AppField name="password">
+        <form.AppField name="Password">
           {(field) => <field.PasswordField label="password" />}
         </form.AppField>
 

@@ -3,15 +3,17 @@ import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals.ts';
 // Import the generated route tree
+import { fetchRewards } from './data/rewards-data.ts';
+import { AuthProvider, useAuth } from './lib/auth.tsx';
 import { routeTree } from './routeTree.gen';
 import './styles.css';
-import { fetchRewards } from './data/rewards-data.ts';
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
     fetchRewards,
+    auth: undefined!,
   },
   defaultPreload: 'intent',
   scrollRestoration: true,
@@ -26,13 +28,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+function Root() {
+  const auth = useAuth();
+
+  // todo: move to _root
+  if (auth.isLoading) {
+    return <div>Loading session...</div>;
+  }
+
+  return <RouterProvider router={router} context={{ auth }} />;
+}
+
 // Render the app
 const rootElement = document.getElementById('app');
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <Root/>
+      </AuthProvider>
     </StrictMode>,
   );
 }
