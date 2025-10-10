@@ -42,6 +42,7 @@ type RewardsResponseSchema = z.infer<typeof RewardsResponseSchema>;
 export const RewardsSearchParams = z.object({
 
     page: z.number().optional(),
+    pageSize: z.number().min(5).max(100).optional(),
     name: z.string().optional(),
     category: z.string().optional(),
     // only accepts -1 or 1, it defaults to 1 an invalid value is provided
