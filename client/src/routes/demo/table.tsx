@@ -26,9 +26,9 @@ export const Route = createFileRoute('/demo/table')({
 });
 
 declare module '@tanstack/react-table' {
-  interface FilterFns {
-    fuzzy: FilterFn<unknown>;
-  }
+  // interface FilterFns {
+  //   fuzzy: FilterFn<unknown>;
+  // }
   interface FilterMeta {
     itemRank: RankingInfo;
   }
@@ -95,7 +95,7 @@ function TableDemo() {
         id: 'fullName',
         header: 'Full Name',
         cell: (info) => info.getValue(),
-        filterFn: 'fuzzy', //using our custom fuzzy filter function
+        filterFn: fuzzyFilter, //using our custom fuzzy filter function
         // filterFn: fuzzyFilter, //or just define with the function
         sortingFn: fuzzySort, //sort by fuzzy rank (falls back to alphanumeric)
       },
@@ -118,7 +118,7 @@ function TableDemo() {
     },
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: 'fuzzy', //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
+    globalFilterFn: fuzzyFilter, //apply fuzzy filter to the global filter (most common use case for fuzzy filter)
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(), //client side filtering
     getSortedRowModel: getSortedRowModel(),

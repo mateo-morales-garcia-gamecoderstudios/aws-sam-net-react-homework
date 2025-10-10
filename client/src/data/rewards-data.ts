@@ -39,11 +39,14 @@ export const RewardsResponseSchema = z.object({
 
 type RewardsResponseSchema = z.infer<typeof RewardsResponseSchema>;
 
+export const RewardsSearchNameParam = z.string().optional().catch('');
+export const RewardsSearchCategoryParam = z.string().optional().catch('');
+
 export const RewardsSearchParams = z.object({
     page: z.number().min(1).optional().catch(1),
     pageSize: z.number().min(5).max(100).optional().catch(5),
-    name: z.string().optional().catch(''),
-    category: z.string().optional().catch(''),
+    name: RewardsSearchNameParam,
+    category: RewardsSearchCategoryParam,
     // 1 asc, -1 desc, 0 disabled, asc by default of if something fails
     priceSort: z.number().min(-1).max(1).optional().default(1).catch(1),
 });

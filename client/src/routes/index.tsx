@@ -7,25 +7,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { RewardSchema, RewardsSearchParams } from '@/data/rewards-data';
-import { rankItem } from '@tanstack/match-sorter-utils';
+import { RewardSchema, RewardsSearchCategoryParam, RewardsSearchNameParam, RewardsSearchParams } from '@/data/rewards-data';
 import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
-import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type PaginationState, type SortingState, type Table as TanstackTable } from '@tanstack/react-table';
+import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type ColumnFiltersState, type PaginationState, type SortingState, type Table as TanstackTable } from '@tanstack/react-table';
 import React, { useEffect, useState } from 'react';
-
-// Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
-const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
-  // Rank the item
-  const itemRank = rankItem(row.getValue(columnId), value);
-
-  // Store the itemRank info
-  addMeta({
-    itemRank,
-  });
-
-  // Return if the item should be filtered in/out
-  return itemRank.passed;
-};
 
 export const Route = createFileRoute('/')({
   validateSearch: RewardsSearchParams,
@@ -102,10 +87,33 @@ function App() {
         // internally it starts at index 0 instead of 1
         page: pagination.pageIndex + 1,
         pageSize: pagination.pageSize,
+      }),
+    })
+  }, [pagination]);
+
+  useEffect(() => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
         priceSort: sorting[0] ? sorting[0].desc ? -1 : 1 : 0,
       }),
     })
-  }, [pagination, sorting]);
+  }, [sorting]);
+
+  const [columnFilters, onColumnFiltersChange] = useState<ColumnFiltersState>([]);
+
+  useEffect(() => {
+    const filters = new Map(columnFilters.map(({ id, value }) => ([id, value])));
+    const { data: name } = RewardsSearchNameParam.safeParse(filters.get('Name'));
+    const { data: category } = RewardsSearchCategoryParam.safeParse(filters.get('Category'));
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        name,
+        category,
+      }),
+    })
+  }, [columnFilters]);
 
   const table = useReactTable({
     data: data.Items,
@@ -114,13 +122,12 @@ function App() {
     manualPagination: true,
     manualSorting: true,
     rowCount: data.TotalCount,
-    state: { pagination, sorting },
+    state: { pagination, sorting, columnFilters },
     onPaginationChange,
     onSortingChange,
+    onColumnFiltersChange,
     getCoreRowModel: getCoreRowModel(),
-    filterFns: {
-      fuzzy: fuzzyFilter
-    },
+    filterFns: {}
   });
 
   return (
