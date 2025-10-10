@@ -10,7 +10,7 @@ import {
 import { RewardSchema, RewardsSearchParams } from '@/data/rewards-data';
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { createFileRoute } from '@tanstack/react-router';
-import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn } from '@tanstack/react-table';
+import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type Table as TanstackTable } from '@tanstack/react-table';
 import React from 'react';
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
@@ -100,7 +100,7 @@ function App() {
         <h1>Rewards List</h1>
       </header>
       <main>
-        <section className='flex justify-center'>
+        <section className='flex justify-center flex-col'>
           <Table className='w-full text-sm'>
             <TableCaption>All rewards list.</TableCaption>
             <TableHeader>
@@ -161,6 +161,9 @@ function App() {
               })}
             </TableBody>
           </Table>
+          <div className='w-full h-full'>
+            <Pagination table={table}></Pagination>
+          </div>
         </section>
       </main>
     </div>
@@ -213,4 +216,73 @@ function DebouncedInput({
       onChange={(e) => setValue(e.target.value)}
     />
   );
+}
+
+function Pagination({ table }: { table: TanstackTable<RewardSchema> }) {
+  return <div className="flex flex-wrap items-center gap-2 text-gray-200 bg-black w-full p-3">
+    <button
+      type="button"
+      className="px-3 py-1 bg-yellow-800 rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={() => table.setPageIndex(0)}
+      disabled={!table.getCanPreviousPage()}
+    >
+      {'<<'}
+    </button>
+    <button
+      type="button"
+      className="px-3 py-1 bg-yellow-800 rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={() => table.previousPage()}
+      disabled={!table.getCanPreviousPage()}
+    >
+      {'<'}
+    </button>
+    <button
+      type="button"
+      className="px-3 py-1 bg-yellow-800 rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={() => table.nextPage()}
+      disabled={!table.getCanNextPage()}
+    >
+      {'>'}
+    </button>
+    <button
+      type="button"
+      className="px-3 py-1 bg-yellow-800 rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+      disabled={!table.getCanNextPage()}
+    >
+      {'>>'}
+    </button>
+    <span className="flex items-center gap-1">
+      <div>Page</div>
+      <strong>
+        {table.getState().pagination.pageIndex + 1} of{' '}
+        {table.getPageCount()}
+      </strong>
+    </span>
+    <span className="flex items-center gap-1">
+      | Go to page:
+      <input
+        type="number"
+        defaultValue={table.getState().pagination.pageIndex + 1}
+        onChange={(e) => {
+          const page = e.target.value ? Number(e.target.value) - 1 : 0;
+          table.setPageIndex(page);
+        }}
+        className="w-16 px-2 py-1 bg-yellow-800 rounded-md border border-yellow-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+      />
+    </span>
+    <select
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => {
+        table.setPageSize(Number(e.target.value));
+      }}
+      className="px-2 py-1 bg-yellow-800 rounded-md border border-yellow-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+    >
+      {[5, 10, 20, 30, 40, 50, 100].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize}
+        </option>
+      ))}
+    </select>
+  </div>
 }
