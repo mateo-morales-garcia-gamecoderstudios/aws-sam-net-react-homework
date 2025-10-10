@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/table';
 import { RewardSchema, RewardsSearchParams } from '@/data/rewards-data';
 import { rankItem } from '@tanstack/match-sorter-utils';
-import { createFileRoute } from '@tanstack/react-router';
-import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type Table as TanstackTable } from '@tanstack/react-table';
-import React from 'react';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type PaginationState, type Table as TanstackTable } from '@tanstack/react-table';
+import React, { useEffect, useState } from 'react';
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
 const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
@@ -82,12 +82,34 @@ function App() {
     [],
   );
 
+  const [pagination, onPaginationChange] = useState<PaginationState>({
+    pageSize: data.PageSize,
+    pageIndex: data.PageNumber - 1,
+  });
+
+  const navigate = useNavigate({ from: Route.fullPath });
+
+  useEffect(() => {
+    console.log(pagination, 'pagState');
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        // internally it starts at index 0 instead of 1
+        page: pagination.pageIndex + 1,
+        pageSize: pagination.pageSize
+      }),
+    })
+  }, [pagination])
+
   const table = useReactTable({
     data: data.Items,
     columns,
     manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
+    rowCount: data.TotalCount,
+    state: { pagination },
+    onPaginationChange,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {
       fuzzy: fuzzyFilter
