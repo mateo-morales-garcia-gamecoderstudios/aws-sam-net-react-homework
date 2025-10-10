@@ -49,7 +49,7 @@ function App() {
       {
         accessorKey: 'Description',
         cell: ({ row }) => {
-          return <div className='text-wrap'>{row.original.Description}</div>
+          return <div className='text-wrap max-h-40 overflow-y-auto'>{row.original.Description}</div>
         },
         filterFn: 'includesString',
         enableColumnFilter: false,
