@@ -9,8 +9,8 @@ import {
 } from '@/components/ui/table';
 import { RewardSchema, RewardsSearchParams } from '@/data/rewards-data';
 import { rankItem } from '@tanstack/match-sorter-utils';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type PaginationState, type Table as TanstackTable } from '@tanstack/react-table';
+import { createFileRoute, useNavigate, useSearch } from '@tanstack/react-router';
+import { flexRender, getCoreRowModel, useReactTable, type Column, type ColumnDef, type FilterFn, type PaginationState, type SortingState, type Table as TanstackTable } from '@tanstack/react-table';
 import React, { useEffect, useState } from 'react';
 
 // Define a custom fuzzy filter function that will apply ranking info to rows (using match-sorter utils)
@@ -36,6 +36,7 @@ export const Route = createFileRoute('/')({
 
 function App() {
   const data = Route.useLoaderData();
+  const search = useSearch({ from: Route.fullPath });
 
   const columns = React.useMemo<ColumnDef<RewardSchema, any>[]>(
     () => [
@@ -87,6 +88,10 @@ function App() {
     pageIndex: data.PageNumber - 1,
   });
 
+  const [sorting, onSortingChange] = useState<SortingState>([
+    { id: 'Price', desc: search.priceSort === -1 }
+  ]);
+
   const navigate = useNavigate({ from: Route.fullPath });
 
   useEffect(() => {
@@ -96,10 +101,11 @@ function App() {
         ...prev,
         // internally it starts at index 0 instead of 1
         page: pagination.pageIndex + 1,
-        pageSize: pagination.pageSize
+        pageSize: pagination.pageSize,
+        priceSort: sorting[0] ? sorting[0].desc ? -1 : 1 : 0,
       }),
     })
-  }, [pagination])
+  }, [pagination, sorting]);
 
   const table = useReactTable({
     data: data.Items,
@@ -108,8 +114,9 @@ function App() {
     manualPagination: true,
     manualSorting: true,
     rowCount: data.TotalCount,
-    state: { pagination },
+    state: { pagination, sorting },
     onPaginationChange,
+    onSortingChange,
     getCoreRowModel: getCoreRowModel(),
     filterFns: {
       fuzzy: fuzzyFilter
