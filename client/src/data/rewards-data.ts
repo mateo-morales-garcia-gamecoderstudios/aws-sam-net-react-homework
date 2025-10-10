@@ -1,4 +1,4 @@
-import { env } from "@/lib/env";
+import { apiFetch } from "@/lib/api";
 import z from "zod";
 
 const objectIdRegex = /^[0-9a-fA-F]{24}$/;
@@ -24,10 +24,8 @@ export const fetchRewards = async (search: RewardsSearchParams): Promise<Rewards
     const filter = Object.fromEntries(Object.entries(search).map(([key, value]) => [key, String(value)]));
     const queryString = `?${new URLSearchParams(filter)}`;
     console.log('🗑️', queryString, filter);
-    const res = await fetch(`${env.VITE_API_BASE_URL}rewards${queryString}`);
-    if (!res.ok) throw new Error('Failed to fetch rewards');
-    const body = await res.json();
-    return RewardsResponseSchema.parse(body);
+    const res = await apiFetch(`rewards${queryString}`);
+    return RewardsResponseSchema.parse(res);
 }
 
 export const RewardsResponseSchema = z.object({
