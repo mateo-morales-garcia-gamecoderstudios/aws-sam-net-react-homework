@@ -124,7 +124,7 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref RewardsApi
-            # /rewards?page=0&name=Peanut&category=Food - Condiment&price=asc
+            # /rewards?page=1&pageSize=5&name=Peanut&category=Food - Condiment&price=asc
             Path: /rewards
             Method: get
             RequestParameters:
@@ -135,6 +135,8 @@ Resources:
               - method.request.querystring.price:
                   Required: false
               - method.request.querystring.page:
+                  Required: false
+              - method.request.querystring.pageSize:
                   Required: false
             Auth:
               Unauthorize: {}

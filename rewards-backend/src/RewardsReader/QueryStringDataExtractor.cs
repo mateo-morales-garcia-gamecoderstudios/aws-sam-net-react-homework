@@ -16,7 +16,7 @@ public class QueryStringDataExtractor
     }
     public static (int pageNumber, int pageSize, int priceSortDirection, FilterDefinition<RewardRepository.RewardEntity> filter) GetData(IDictionary<string, string> queryString)
     {
-        int pageNumber = 0;
+        int pageNumber = 1;
         int pageSize = 5;
         int priceSortDirection = 1;
         FilterDefinition<RewardRepository.RewardEntity> filter = Builders<RewardRepository.RewardEntity>.Filter.Empty;
@@ -24,7 +24,7 @@ public class QueryStringDataExtractor
         {
             return (pageNumber, pageSize, priceSortDirection, filter);
         }
-        if (queryString.TryGetValue("page", out var unparsedPage) && int.TryParse(unparsedPage, out int page) && page > 0)
+        if (queryString.TryGetValue("page", out var unparsedPage) && int.TryParse(unparsedPage, out int page) && page > 1)
         {
             pageNumber = page;
         }

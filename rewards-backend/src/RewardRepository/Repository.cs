@@ -72,7 +72,7 @@ public class Repository : IRepository
     }
 
 
-    public async Task<PagedResult<RewardEntity>> GetRewardsAsync(int pageNumber = 0, int pageSize = 100, int priceSortDirection = 1, FilterDefinition<RewardEntity>? filter = null)
+    public async Task<PagedResult<RewardEntity>> GetRewardsAsync(int pageNumber = 1, int pageSize = 100, int priceSortDirection = 1, FilterDefinition<RewardEntity>? filter = null)
     {
         filter ??= Builders<RewardEntity>.Filter.Empty;
         long totalCount = await collection.CountDocumentsAsync(filter);
