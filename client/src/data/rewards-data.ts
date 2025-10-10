@@ -44,8 +44,8 @@ export const RewardsSearchParams = z.object({
     pageSize: z.number().min(5).max(100).optional().catch(5),
     name: z.string().optional().catch(''),
     category: z.string().optional().catch(''),
-    // only accepts -1 or 1, it defaults to 1 an invalid value is provided
-    priceSort: z.union([z.literal(-1), z.literal(1)]).catch(1),
+    // 1 asc, -1 desc, 0 disabled, asc by default of if something fails
+    priceSort: z.number().min(-1).max(1).optional().default(1).catch(1),
 });
 
 type RewardsSearchParams = z.infer<typeof RewardsSearchParams>;

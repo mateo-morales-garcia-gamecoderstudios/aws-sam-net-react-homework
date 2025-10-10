@@ -18,7 +18,7 @@ public class QueryStringDataExtractor
     {
         int pageNumber = 1;
         int pageSize = 5;
-        int priceSortDirection = 1;
+        int priceSortDirection = 0;
         FilterDefinition<RewardRepository.RewardEntity> filter = Builders<RewardRepository.RewardEntity>.Filter.Empty;
         if (queryString == null)
         {
@@ -42,9 +42,9 @@ public class QueryStringDataExtractor
             var fieldFilter = Builders<RewardRepository.RewardEntity>.Filter.Regex("Category", new Regex(category));
             filter &= fieldFilter;
         }
-        if (queryString.TryGetValue("priceSort", out var unparsedPriceSort) && int.TryParse(unparsedPriceSort, out int parsedPriceSort) && parsedPriceSort == -1)
+        if (queryString.TryGetValue("priceSort", out var unparsedPriceSort) && int.TryParse(unparsedPriceSort, out int parsedPriceSort))
         {
-            priceSortDirection = -1;
+            priceSortDirection = Math.Clamp(parsedPriceSort, -1, 1);
         }
         return (pageNumber, pageSize, priceSortDirection, filter);
     }

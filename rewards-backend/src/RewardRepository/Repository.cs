@@ -72,18 +72,23 @@ public class Repository : IRepository
     }
 
 
-    public async Task<PagedResult<RewardEntity>> GetRewardsAsync(int pageNumber = 1, int pageSize = 100, int priceSortDirection = 1, FilterDefinition<RewardEntity>? filter = null)
+    public async Task<PagedResult<RewardEntity>> GetRewardsAsync(int pageNumber = 1, int pageSize = 100, int priceSortDirection = 0, FilterDefinition<RewardEntity>? filter = null)
     {
         filter ??= Builders<RewardEntity>.Filter.Empty;
         long totalCount = await collection.CountDocumentsAsync(filter);
         int skipAmount = Math.Max(0, (pageNumber - 1) * pageSize);
-        var sortDocument = new BsonDocument { { "Price", priceSortDirection } };
-        var items = await collection
+        var finder = collection
             .Find(filter)
-            .Sort(sortDocument)
             .Skip(skipAmount)
-            .Limit(pageSize)
-            .ToListAsync();
+            .Limit(pageSize);
+
+        if (priceSortDirection != 0)
+        {
+            var sortDocument = new BsonDocument { { "Price", priceSortDirection } };
+            finder = finder.Sort(sortDocument);
+        }
+
+        var items = await finder.ToListAsync();
 
         return new PagedResult<RewardEntity>
         {
