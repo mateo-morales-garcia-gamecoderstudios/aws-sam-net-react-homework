@@ -10,7 +10,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # 2. Now, run the SAM build
 echo "Running sam build..."
-sam build
+sam build --no-cached
 
 # 3. Then run the local api
 echo "Running sam local start-api..."
