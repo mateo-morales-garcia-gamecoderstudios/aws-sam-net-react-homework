@@ -10,8 +10,7 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
-        JWT_SECRET: Some JWT Secret
-        DATABASE_URL: database url
+        MAX_REWARDS_PAGE_SIZE: 100
 
 Resources:
   RewardsApi:

@@ -5,10 +5,19 @@ namespace RewardsReader;
 
 public class QueryStringDataExtractor
 {
+    static readonly int maxPageSize;
+
+    static QueryStringDataExtractor()
+    {
+        if (!int.TryParse(Environment.GetEnvironmentVariable("MAX_REWARDS_PAGE_SIZE"), out maxPageSize))
+        {
+            maxPageSize = 100; // fallback max value
+        }
+    }
     public static (int pageNumber, int pageSize, int priceSortDirection, FilterDefinition<RewardRepository.RewardEntity> filter) GetData(IDictionary<string, string> queryString)
     {
         int pageNumber = 0;
-        int pageSize = 100;
+        int pageSize = 5;
         int priceSortDirection = 1;
         FilterDefinition<RewardRepository.RewardEntity> filter = Builders<RewardRepository.RewardEntity>.Filter.Empty;
         if (queryString == null)
@@ -18,6 +27,10 @@ public class QueryStringDataExtractor
         if (queryString.TryGetValue("page", out var unparsedPage) && int.TryParse(unparsedPage, out int page) && page > 0)
         {
             pageNumber = page;
+        }
+        if (queryString.TryGetValue("pageSize", out var unparsedPageSize) && int.TryParse(unparsedPageSize, out int parsedPageSize) && parsedPageSize > 5)
+        {
+            pageSize = Math.Min(maxPageSize, parsedPageSize);
         }
         if (queryString.TryGetValue("name", out var name) && !string.IsNullOrEmpty(name.Trim()))
         {
