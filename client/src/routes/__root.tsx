@@ -1,10 +1,13 @@
 import { TanStackDevtools } from '@tanstack/react-devtools';
-import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import Header from '../components/Header';
+import type { fetchRewards } from '@/data/rewards-data';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  fetchRewards: typeof fetchRewards
+}>()({
   component: () => (
     <>
       <Header />
