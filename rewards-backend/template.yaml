@@ -20,7 +20,8 @@ Resources:
       Cors:
         # AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,Authorization'"
-        AllowOrigin: "'*'"
+        AllowOrigin: "'http://localhost:3000'"
+        AllowCredentials: true #required to use credentials in requests
       Auth:
         Authorizers:
           JwtAuthorizer: # Logical ID of the Authorizer
