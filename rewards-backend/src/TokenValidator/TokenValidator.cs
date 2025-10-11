@@ -11,7 +11,7 @@ public class TokenValidator
     {
         jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Exception("Missing JWT configuration");
     }
-    public static string Validate(string token)
+    public static string Validate(string? token)
     {
         if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
         {
