@@ -19,16 +19,17 @@ Resources:
       StageName: Prod # Define the Stage Name once
       Cors:
         # AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
-        AllowHeaders: "'Content-Type,Authorization'"
+        AllowHeaders: "'Content-Type,Authorization,Cookie'"
         AllowOrigin: "'http://localhost:3000'"
         AllowCredentials: true #required to use credentials in requests
       Auth:
         Authorizers:
           JwtAuthorizer: # Logical ID of the Authorizer
             FunctionArn: !GetAtt JwtAuthorizerFunction.Arn
-            IdentitySource: method.request.header.Authorization
+            IdentitySource: method.request.header.Cookie
             AuthorizerResultTtlInSeconds: 300
-            Type: TOKEN
+            Type: REQUEST
+            FunctionPayloadType: REQUEST
   JwtAuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:

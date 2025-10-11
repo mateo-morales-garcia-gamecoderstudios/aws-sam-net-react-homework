@@ -28,8 +28,9 @@ public class Auth
         {
             ThrowIfInvalidToken(request);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
         }
 
