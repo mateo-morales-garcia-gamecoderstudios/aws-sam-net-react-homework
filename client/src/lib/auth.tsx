@@ -1,15 +1,9 @@
 import * as React from 'react';
 import { apiFetch } from './api';
 
-interface User {
-    id: string;
-    email: string;
-}
-
 export interface IAuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
-    user: User | null;
     checkSession: () => Promise<void>;
     logout: () => Promise<void>;
 }
@@ -17,17 +11,17 @@ export interface IAuthContextType {
 const AuthContext = React.createContext<IAuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = React.useState<User | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(true);
 
     const checkSession = React.useCallback(async () => {
         setIsLoading(true);
         try {
             // The browser automatically sends the HttpOnly cookie
-            const userData = await apiFetch('/auth/me');
-            setUser(userData);
+            await apiFetch('auth/me');
+            setIsAuthenticated(true);
         } catch (error) {
-            setUser(null);
+            setIsAuthenticated(false);
         } finally {
             setIsLoading(false);
         }
@@ -39,13 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = async () => {
         // this will tell the browser to remove the cookie
-        await apiFetch('/auth/logout', { method: 'POST' });
-        setUser(null); 
+        await apiFetch('auth/logout', { method: 'POST' });
+        setIsAuthenticated(false);
     };
 
     const value = {
-        isAuthenticated: !!user,
-        user,
+        isAuthenticated,
         isLoading,
         checkSession,
         logout,
