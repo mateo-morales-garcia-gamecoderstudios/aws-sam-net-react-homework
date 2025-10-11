@@ -20,7 +20,7 @@ public class Auth
             return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
         }
 
-        return new APIGatewayProxyResponse { StatusCode = 200 };
+        return new APIGatewayProxyResponse { StatusCode = 204, Headers = { } };
     }
     public static async Task<APIGatewayProxyResponse> LogoutHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -37,7 +37,7 @@ public class Auth
 
         return new APIGatewayProxyResponse
         {
-            StatusCode = 200,
+            StatusCode = 24,
             Headers = new Dictionary<string, string> {
                 { "Set-Cookie", cookieString }
             }

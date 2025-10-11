@@ -19,6 +19,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    if (response.status === 204) return;
     // Handle cases where the response body might be empty (e.g., for a 204 No Content)
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.indexOf("application/json") !== -1) {
