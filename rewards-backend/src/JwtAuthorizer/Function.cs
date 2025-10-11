@@ -14,7 +14,7 @@ public class Function
         try
         {
             // this function throws an error if the token is not valid
-            var userId = TokenValidator.TokenValidator.Validate(request.AuthorizationToken);
+            var userId = TokenValidator.TokenValidator.ValidateFromHeaders(request.Headers);
 
             return new APIGatewayCustomAuthorizerResponse
             {

@@ -70,7 +70,7 @@ public class Function
         var loginResponse = new LoginResponse { Token = tokenHandler.WriteToken(token) };
         var jsonResponse = JsonSerializer.Serialize(loginResponse);
 
-        var cookieString = $"JWT_SESSION={loginResponse.Token}; HttpOnly; Secure; SameSite=Strict; Path=/; Expires={DateTime.UtcNow.AddMinutes(30).ToString("R")}";
+        var cookieString = $"JWT_SESSION={loginResponse.Token}; HttpOnly; Secure; SameSite=None; Path=/; Expires={DateTime.UtcNow.AddMinutes(30).ToString("R")}";
 
         return new APIGatewayProxyResponse
         {

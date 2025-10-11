@@ -11,14 +11,27 @@ public class TokenValidator
     {
         jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new Exception("Missing JWT configuration");
     }
-    public static string Validate(string? token)
+    public static string ValidateFromHeaders(IDictionary<string, string>? headers)
     {
-        if (string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
+        if (headers == null)
+        {
+            throw new Exception("Unauthorized");
+        }
+        var cookieHeaderFound = headers.TryGetValue("Cookie", out var cookieHeader);
+        if (!cookieHeaderFound)
+        {
+            throw new Exception("Unauthorized");
+        }
+        var jwtSession = GetCookieValue(cookieHeader, "JWT_SESSION");
+        return Validate(jwtSession);
+    }
+    public static string Validate(string? jwt)
+    {
+        if (string.IsNullOrEmpty(jwt))
         {
             throw new Exception("Unauthorized");
         }
 
-        var jwt = token.Substring("Bearer ".Length).Trim();
         var key = Encoding.ASCII.GetBytes(jwtSecret);
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -40,5 +53,25 @@ public class TokenValidator
         }
 
         return userId;
+    }
+    public static string? GetCookieValue(string? cookieHeader, string cookieName)
+    {
+        if (cookieHeader == null)
+        {
+            return null;
+        }
+
+        var cookies = cookieHeader.Split(';');
+
+        foreach (var cookie in cookies)
+        {
+            var parts = cookie.Trim().Split('=');
+            if (parts.Length == 2 && parts[0] == cookieName)
+            {
+                return parts[1];
+            }
+        }
+
+        return null;
     }
 }

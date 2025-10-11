@@ -8,20 +8,21 @@ namespace Auth;
 
 public class Auth
 {
-    public async Task<APIGatewayProxyResponse> MeHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    public static async Task<APIGatewayProxyResponse> MeHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
         {
             ThrowIfInvalidToken(request);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine(e.Message);
             return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
         }
 
         return new APIGatewayProxyResponse { StatusCode = 200 };
     }
-    public async Task<APIGatewayProxyResponse> LogoutHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    public static async Task<APIGatewayProxyResponse> LogoutHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         try
         {
@@ -32,7 +33,7 @@ public class Auth
             return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
         }
 
-        var cookieString = $"JWT_SESSION=; HttpOnly; Secure; SameSite=Strict; Path=/; Expires={DateTime.UnixEpoch.ToString("R")}";
+        var cookieString = $"JWT_SESSION=; HttpOnly; Secure; SameSite=None; Path=/; Expires={DateTime.UnixEpoch.ToString("R")}";
 
         return new APIGatewayProxyResponse
         {
@@ -45,12 +46,8 @@ public class Auth
 
     private static void ThrowIfInvalidToken(APIGatewayProxyRequest request)
     {
-        if (request.Headers == null || request.Headers.TryGetValue("Authorization", out var authToken))
-        {
-            throw new Exception("Unauthorized");
-        }
         // this function throws an error if the token is not valid
-        _ = TokenValidator.TokenValidator.Validate(authToken);
+        _ = TokenValidator.TokenValidator.ValidateFromHeaders(request.Headers);
     }
 
 }
