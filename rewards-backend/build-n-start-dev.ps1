@@ -2,6 +2,8 @@
 # 1. Build the shared library first and foremost
 echo "Building Shared Library..."
 dotnet build ./src/SharedValidator/SharedValidator.csproj -c Release
+echo "Reward Repository Library..."
+dotnet build ./src/RewardRepository/RewardRepository.csproj -c Release
 
 if ($LASTEXITCODE -ne 0) {
     echo "Shared library build failed!"
