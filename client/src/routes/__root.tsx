@@ -1,6 +1,6 @@
-import { TanStackDevtools } from '@tanstack/react-devtools';
+// import { TanStackDevtools } from '@tanstack/react-devtools';
 import { createRootRouteWithContext, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
+// import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
 import type { fetchRewards } from '@/data/rewards-data';
 import type { IAuthContextType } from '@/lib/auth';
@@ -14,7 +14,7 @@ export const Route = createRootRouteWithContext<{
     <>
       <Header />
       <Outlet />
-      <TanStackDevtools
+      {/* <TanStackDevtools
         config={{
           position: 'bottom-right',
         }}
@@ -24,7 +24,7 @@ export const Route = createRootRouteWithContext<{
             render: <TanStackRouterDevtoolsPanel />,
           },
         ]}
-      />
+      /> */}
     </>
   ),
 });
