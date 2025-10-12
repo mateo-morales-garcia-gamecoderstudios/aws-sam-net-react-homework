@@ -1,5 +1,5 @@
 import { useAuth } from '@/lib/auth';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 export default function Header() {
 
@@ -15,10 +15,14 @@ export default function Header() {
 
 function LoginLogoutButton() {
   const { isAuthenticated, logout } = useAuth()
+  const navigator = useNavigate();
 
   if (isAuthenticated) {
     return <button
-      onClick={logout}
+      onClick={async () => {
+        await logout();
+        navigator({ to: '/' });
+      }}
       className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
       aria-label="Logout"
     >
