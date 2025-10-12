@@ -38,7 +38,7 @@ public class Auth
 
         return new APIGatewayProxyResponse
         {
-            StatusCode = 24,
+            StatusCode = 204,
             Headers = new Dictionary<string, string> {
                 { "Set-Cookie", cookieString }
             }
