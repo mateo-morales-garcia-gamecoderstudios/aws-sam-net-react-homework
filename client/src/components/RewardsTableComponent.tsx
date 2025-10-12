@@ -79,11 +79,11 @@ export function RewardsTable({
                     return (
                         <TableRow
                             key={row.id}
-                            className='hover:bg-yellow-200 transition-colors'
+                            className='hover:bg-yellow-100 transition-colors'
                         >
                             {row.getVisibleCells().map((cell) => {
                                 return (
-                                    <TableCell key={cell.id} className='px-4 py-3' style={{ width: cell.column.getSize() }}>
+                                    <TableCell key={cell.id} className='px-4 py-3' /* style={{ width: cell.column.getSize() }} */>
                                         {flexRender(
                                             cell.column.columnDef.cell,
                                             cell.getContext(),
