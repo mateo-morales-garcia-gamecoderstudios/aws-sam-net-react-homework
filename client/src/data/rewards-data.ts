@@ -35,7 +35,7 @@ export const RewardsResponseSchema = z.object({
     Items: z.array(RewardSchema)
 });
 
-type RewardsResponseSchema = z.infer<typeof RewardsResponseSchema>;
+export type RewardsResponseSchema = z.infer<typeof RewardsResponseSchema>;
 
 export const RewardsSearchNameParam = z.string().optional().catch('');
 export const RewardsSearchCategoryParam = z.string().optional().catch('');
@@ -49,4 +49,4 @@ export const RewardsSearchParams = z.object({
     priceSort: z.number().min(-1).max(1).optional().default(1).catch(1),
 });
 
-type RewardsSearchParams = z.infer<typeof RewardsSearchParams>;
+export type RewardsSearchParams = z.infer<typeof RewardsSearchParams>;
