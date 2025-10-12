@@ -43,7 +43,7 @@ public class RewardEntity : IJsonOnDeserialized
     {
         return new RewardDto
         {
-            Id = Id.ToString(),
+            Id = Id != null ? Id.ToString() : "",
             Name = Name,
             Description = Description,
             Price = Price,
