@@ -24,16 +24,17 @@ public class Auth
     }
     public static async Task<APIGatewayProxyResponse> LogoutHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        try
-        {
-            ThrowIfInvalidToken(request);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
-        }
+        // try
+        // {
+        //     ThrowIfInvalidToken(request);
+        // }
+        // catch (Exception e)
+        // {
+        //     Console.WriteLine(e.Message);
+        //     return new APIGatewayProxyResponse { StatusCode = 401, Body = "Unauthorized" };
+        // }
 
+        // since this endpoint only removes the cookie of the requester it does not need authentication
         var cookieString = $"JWT_SESSION=; HttpOnly; Secure; SameSite=None; Path=/; Expires={DateTime.UnixEpoch.ToString("R")}";
 
         return new APIGatewayProxyResponse
