@@ -1,10 +1,18 @@
 import { useAppForm } from '@/hooks/login.form';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router';
 import z from 'zod';
 
 export const Route = createFileRoute('/login')({
+  validateSearch: z.object({
+    redirect: z.string().optional().catch(''),
+  }),
+  beforeLoad: ({ context, search }) => {
+    if (context.auth.isAuthenticated) {
+      throw redirect({ to: search.redirect || '/manage'/* fallback */ });
+    }
+  },
   component: LoginComponent,
 })
 
@@ -14,7 +22,10 @@ const schema = z.object({
 });
 
 function LoginComponent() {
+  const router = useRouter();
   const navigate = useNavigate();
+  const search = Route.useSearch();
+
   const { checkSession } = useAuth();
   const form = useAppForm({
     defaultValues: {
@@ -31,7 +42,8 @@ function LoginComponent() {
       });
       await checkSession();
 
-      navigate({ to: '/manage' });
+      await router.invalidate();
+      await navigate({ to: search.redirect || '/manage' });
     },
   });
   return <div
