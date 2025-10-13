@@ -25,8 +25,6 @@ function LoginComponent() {
       onBlur: schema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
-      // Show success message
       await apiFetch('login', {
         method: 'POST',
         body: JSON.stringify(value),
