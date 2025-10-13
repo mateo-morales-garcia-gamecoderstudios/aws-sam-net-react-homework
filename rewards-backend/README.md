@@ -13,6 +13,8 @@ Globals:
         DATABASE_URL: # your mongodb+srv:// database uri
 
 ```
+## database setup
+create a database named `rewards` 
 
 ## account set up
 You need to setup a user in the database to be able to login and manage the rewards list.
@@ -37,7 +39,11 @@ You can login with the following credentials:
 - email:`rewards.admin@homework.com`
 - password:`A very good password!`
 
-Note: this project does not have endpoints to manage users, so they need to be created manually
+> [!NOTE]  
+> This project does not have endpoints to manage users, so they need to be created manually.
+
+## demo rewards data
+In the directory `rewards-backend\demo-data\rewards.demo-data.json` there are some rewards that can be imported into your `rewards` collection of the database, to better test the pagination features
 
 ## endpoints 
 This project has a the following endpoints:
