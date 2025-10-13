@@ -14,6 +14,32 @@ Globals:
 
 ```
 
+## account set up
+You need to setup a user in the database to be able to login and manage the rewards list.
+
+Create a collection `users` and insert a document with the following structure
+```json
+{
+  "_id": {
+    "$oid": "68e4511b02632f32779ba0e0"
+  },
+  "Email": "rewards.admin@homework.com",
+  "HashedPassword": "$2a$11$6iXY.7E622gMoF1E80kAOO9qZ0r1hvwByIXojV91ok0sO5Ly/TAky"
+}
+```
+The hashed password is created using the `JWT_SECRET`. The one used to generate the hash above is
+```Some JWT Secret TEju99W=Vfd{$`REZA-+;vz01V!SH),Oz1v;HjV2```
+
+If you want ot deploy this, please use a different JWT Secret and a different password.
+
+You can login with the following credentials:
+
+- email:`rewards.admin@homework.com`
+- password:`A very good password!`
+
+Note: this project does not have endpoints to manage users, so they need to be created manually
+
+## endpoints 
 This project has a the following endpoints:
 
 - Mounting LoginFunction at http://127.0.0.1:3000/login [POST, OPTIONS]
