@@ -23,7 +23,6 @@ export type RewardSchema = z.infer<typeof RewardSchema>;
 export const fetchRewards = async (search: RewardsSearchParams): Promise<RewardsResponseSchema> => {
     const filter = Object.fromEntries(Object.entries(search).map(([key, value]) => [key, String(value)]));
     const queryString = `?${new URLSearchParams(filter)}`;
-    console.log('🗑️', queryString, filter);
     const res = await apiFetch(`rewards${queryString}`);
     return RewardsResponseSchema.parse(res);
 }
