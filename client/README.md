@@ -1,6 +1,16 @@
-Welcome to your new TanStack app! 
+Welcome 
+
+This is a client made with React + Tanstack Router + Tanstack Form + Tanstack Table
+It uses a cookie set by the headers on the login request, so if you don't have cookies activated it wont let you authenticate correctly
 
 # Getting Started
+
+First create a .env file in this directory
+
+```.env
+# put here the url of the api of this project
+VITE_API_BASE_URL=http://127.0.0.1:3000/
+```
 
 To run this application:
 
@@ -24,6 +34,8 @@ This project uses [Vitest](https://vitest.dev/) for testing. You can run the tes
 ```bash
 npm run test
 ```
+> [!NOTE]  
+> Currently the project does not have any unit test.
 
 ## Styling
 
@@ -35,7 +47,7 @@ This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
 
 ```bash
-pnpx shadcn@latest add button
+npm shadcn@latest add button
 ```
 
 
@@ -104,7 +116,7 @@ More information on layouts can be found in the [Layouts documentation](https://
 
 ## Data Fetching
 
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
+There are multiple ways to fetch data in your application. You can use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
 
 For example:
 

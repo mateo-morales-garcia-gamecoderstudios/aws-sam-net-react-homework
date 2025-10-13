@@ -1,3 +1,35 @@
+# getting started
+To run this project you need to set up two environment variables in the [template.yaml](./template.yaml) file.
+Avoid committing them to git.
+```yaml
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 512
+    Environment:
+      Variables:
+        MAX_REWARDS_PAGE_SIZE: 100
+        JWT_SECRET: # Put here the JWT secret to be use
+        DATABASE_URL: # your mongodb+srv:// database uri
+
+```
+
+This project has a the following endpoints:
+
+- Mounting LoginFunction at http://127.0.0.1:3000/login [POST, OPTIONS]
+- Mounting RewardCreatorFunction at http://127.0.0.1:3000/reward [POST, OPTIONS]
+- Mounting AuthLogoutFunction at http://127.0.0.1:3000/auth/logout [POST, OPTIONS]
+- Mounting RewardUpdaterFunction at http://127.0.0.1:3000/reward [PUT, OPTIONS]
+- Mounting RewardsReaderFunction at http://127.0.0.1:3000/rewards [GET, OPTIONS]
+- Mounting RewardDeleterFunction at http://127.0.0.1:3000/reward/{id} [DELETE, OPTIONS]
+- Mounting AuthMeFunction at http://127.0.0.1:3000/auth/me [GET, OPTIONS]
+
+It also uses an Authorizer that prevents the execution of some functions if the user is not authenticated.
+
+AWS SAM CLI does not guarantee 100% fidelity between authorizers locally
+and authorizers deployed on AWS. Any application critical behavior should
+be validated thoroughly before deploying to production.
+
 # rewards-backend
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
