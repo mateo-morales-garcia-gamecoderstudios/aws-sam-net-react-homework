@@ -30,6 +30,9 @@ Resources:
             AuthorizerResultTtlInSeconds: 300
             Type: REQUEST
             FunctionPayloadType: REQUEST
+            Identity:
+              Headers:
+                - Cookie
   JwtAuthorizerFunction:
     Type: AWS::Serverless::Function
     Properties:
