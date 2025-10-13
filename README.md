@@ -50,7 +50,7 @@ Create a collection `users` and insert a document with the following structure
 }
 ```
 The hashed password is created using the `JWT_SECRET`. The one used to generate the hash above is
-```Some JWT Secret TEju99W=Vfd{$`REZA-+;vz01V!SH),Oz1v;HjV2```
+```Some JWT Secret TEju99W=Vfd{$`REZA-+;vz01V!SH),Oz1v;HjV2``` (including spaces)
 
 If you want ot deploy this, please use a different JWT Secret and a different password.
 
