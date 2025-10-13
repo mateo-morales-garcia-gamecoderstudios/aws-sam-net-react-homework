@@ -1,3 +1,4 @@
+import { CreateDialog, useCreateDialog } from '@/components/CreateDialog';
 import { DeleteDialog, useDeleteDialog } from '@/components/DeleteDialog';
 import { RewardsTable } from '@/components/RewardsTableComponent';
 import { UpdateDialog, useUpdateDialog } from '@/components/UpdateDialog';
@@ -5,7 +6,7 @@ import { RewardSchema, RewardsSearchParams } from '@/data/rewards-data';
 import { useRewardsColumnFilters, useRewardsPagination, useRewardsSorting } from '@/hooks/rewards-table';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
-import { PencilIcon, Trash2Icon } from 'lucide-react';
+import { PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import React from 'react';
 
 export const Route = createFileRoute('/_authenticated/manage')({
@@ -22,6 +23,7 @@ function RouteComponent() {
 
   const deleteDialog = useDeleteDialog({ navigate });
   const updateDialog = useUpdateDialog({ navigate });
+  const createDialog = useCreateDialog({ navigate });
 
   const columns = React.useMemo<ColumnDef<RewardSchema, any>[]>(
     () => [
@@ -66,7 +68,6 @@ function RouteComponent() {
       },
       {
         id: 'manage-buttons',
-        header: '',
         cell: ({ row }) => {
           return <div className='flex justify-evenly w-20 h-8'>
             <PencilIcon className="size-8 rounded-md p-1 bg-blue-400 text-yellow-50 hover:bg-blue-500 transition-colors"
@@ -75,6 +76,10 @@ function RouteComponent() {
               onClick={() => deleteDialog.openDeleteDialog(row.original.Id)} />
           </div>
         },
+        header: () => (<div className='flex justify-center'>
+          <PlusIcon className="size-8 rounded-md p-1 bg-green-400 text-yellow-50 hover:bg-green-500 transition-colors"
+            onClick={() => createDialog.openUpdateDialog()} />
+        </div>),
         enableColumnFilter: false,
         enableSorting: false,
       },
@@ -108,6 +113,11 @@ function RouteComponent() {
           onOpenChange={updateDialog.onOpenChange}
           initialRewardData={updateDialog.initialRewardData}
         ></UpdateDialog>
+        <CreateDialog
+          isOpen={createDialog.isOpen}
+          onCreate={createDialog.onCreate}
+          onOpenChange={createDialog.onOpenChange}
+        />
       </main>
     </div>
   );

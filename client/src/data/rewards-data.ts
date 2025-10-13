@@ -22,6 +22,9 @@ export const RewardSchema = z.object({
 
 export type RewardSchema = z.infer<typeof RewardSchema>;
 
+export const RewardSchemaNoId = RewardSchema.omit({ Id: true });
+export type RewardSchemaNoId = z.infer<typeof RewardSchemaNoId>;
+
 export const fetchRewards = async (search: RewardsSearchParams): Promise<RewardsResponseSchema> => {
     const filter = Object.fromEntries(Object.entries(search).map(([key, value]) => [key, String(value)]));
     const queryString = `?${new URLSearchParams(filter)}`;
