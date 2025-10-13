@@ -74,8 +74,8 @@ public class Function
 
         return new APIGatewayProxyResponse
         {
-            StatusCode = 200,
-            Body = jsonResponse,
+            StatusCode = 204,
+            Body = { },
             Headers = new Dictionary<string, string> {
                 { "Content-Type", "application/json" },
                 { "Set-Cookie", cookieString }
