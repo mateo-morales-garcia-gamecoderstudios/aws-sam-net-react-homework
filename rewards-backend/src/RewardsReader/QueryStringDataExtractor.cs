@@ -34,12 +34,12 @@ public class QueryStringDataExtractor
         }
         if (queryString.TryGetValue("name", out var name) && !string.IsNullOrEmpty(name.Trim()))
         {
-            var fieldFilter = Builders<RewardRepository.RewardEntity>.Filter.Regex("Name", new Regex(name));
+            var fieldFilter = TryMakeRegexFilterFallbackToEq(field: "Name", value: name);
             filter &= fieldFilter;
         }
         if (queryString.TryGetValue("category", out var category) && !string.IsNullOrEmpty(category.Trim()))
         {
-            var fieldFilter = Builders<RewardRepository.RewardEntity>.Filter.Regex("Category", new Regex(category));
+            var fieldFilter = TryMakeRegexFilterFallbackToEq(field: "Category", value: category);
             filter &= fieldFilter;
         }
         if (queryString.TryGetValue("priceSort", out var unparsedPriceSort) && int.TryParse(unparsedPriceSort, out int parsedPriceSort))
@@ -47,5 +47,19 @@ public class QueryStringDataExtractor
             priceSortDirection = Math.Clamp(parsedPriceSort, -1, 1);
         }
         return (pageNumber, pageSize, priceSortDirection, filter);
+    }
+    private static FilterDefinition<RewardRepository.RewardEntity> TryMakeRegexFilterFallbackToEq(string field, string value)
+    {
+        try
+        {
+            var fieldFilter = Builders<RewardRepository.RewardEntity>.Filter.Regex(field, new Regex(value));
+            return fieldFilter;
+        }
+        catch (RegexParseException e)
+        {
+            Console.WriteLine(e.Message);
+            var fieldFilter = Builders<RewardRepository.RewardEntity>.Filter.Eq(field, value);
+            return fieldFilter;
+        }
     }
 }
