@@ -14,17 +14,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [isLoading, setIsLoading] = React.useState(true);
 
+    const pendingCheckRef = React.useRef<Promise<void> | null>(null);
+
     const checkSession = React.useCallback(async () => {
-        setIsLoading(true);
-        try {
-            // The browser automatically sends the HttpOnly cookie
-            await apiFetch('auth/me');
-            setIsAuthenticated(true);
-        } catch (error) {
-            setIsAuthenticated(false);
-        } finally {
-            setIsLoading(false);
+        if (pendingCheckRef.current) {
+            return pendingCheckRef.current;
         }
+
+        setIsLoading(true);
+
+        const p = (async () => {
+            try {
+                // The browser automatically sends the HttpOnly cookie
+                await apiFetch('auth/me');
+                setIsAuthenticated(true);
+            } catch (error) {
+                setIsAuthenticated(false);
+            } finally {
+                setIsLoading(false);
+                pendingCheckRef.current = null;
+            }
+        })();
+
+        pendingCheckRef.current = p;
+        return p;
     }, []);
 
     React.useEffect(() => {
