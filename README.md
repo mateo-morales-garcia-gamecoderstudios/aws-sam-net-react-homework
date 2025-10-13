@@ -81,7 +81,7 @@ sam local start-api
 > There are moments when after some restarts, a few Docker containers remain up, and this leads to issues while testing your changes to the project. You need to stop them and then delete them before the next `sam build` or `sam local start-api`.
 > If you made changes and see they are not being reflected in after building and starting the api, try `sam build --no-cached` and also check the containers and images in docker, you may need to stop or remove them.
 
-> [NOTE]
+> [!NOTE]
 > Sometimes when building starting the api it fails, but running it a second time usually fixes it
 
 #### endpoints 
