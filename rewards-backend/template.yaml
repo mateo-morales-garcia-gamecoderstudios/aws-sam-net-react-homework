@@ -13,6 +13,36 @@ Globals:
         MAX_REWARDS_PAGE_SIZE: 100
 
 Resources:
+  RewardRepositoryLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: RewardRepositoryLayer
+      Description: !Sub
+        - Stack ${AWS::StackName} Layer ${ResourceName}
+        - ResourceName: RewardRepositoryLayer
+      ContentUri: src/RewardRepository
+      CompatibleRuntimes:
+        - dotnet8
+  SharedValidatorLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SharedValidatorLayer
+      Description: !Sub
+        - Stack ${AWS::StackName} Layer ${ResourceName}
+        - ResourceName: SharedValidatorLayer
+      ContentUri: src/SharedValidator
+      CompatibleRuntimes:
+        - dotnet8
+  TokenValidatorLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: TokenValidatorLayer
+      Description: !Sub
+        - Stack ${AWS::StackName} Layer ${ResourceName}
+        - ResourceName: TokenValidatorLayer
+      ContentUri: src/TokenValidator
+      CompatibleRuntimes:
+        - dotnet8
   RewardsApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -43,6 +73,9 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 512
+      Layers:
+        - !Ref SharedValidatorLayer
+        - !Ref TokenValidatorLayer
   AuthMeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -62,6 +95,8 @@ Resources:
             Method: get
             Auth:
               Unauthorize: {}
+      Layers:
+        - !Ref TokenValidatorLayer
   AuthLogoutFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -82,6 +117,8 @@ Resources:
             Auth:
               Unauthorize: {}
               # Authorizer: JwtAuthorizer
+      Layers:
+        - !Ref TokenValidatorLayer
   LoginFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -100,6 +137,8 @@ Resources:
             Method: post
             Auth:
               Unauthorize: {}
+      Layers:
+        - !Ref SharedValidatorLayer
   RewardCreatorFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -118,6 +157,9 @@ Resources:
             Method: post
             Auth:
               Authorizer: JwtAuthorizer
+      Layers:
+        - !Ref SharedValidatorLayer
+        - !Ref RewardRepositoryLayer
   RewardUpdaterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -136,6 +178,9 @@ Resources:
             Method: put
             Auth:
               Authorizer: JwtAuthorizer
+      Layers:
+        - !Ref SharedValidatorLayer
+        - !Ref RewardRepositoryLayer
   RewardDeleterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -154,6 +199,9 @@ Resources:
             Method: delete
             Auth:
               Authorizer: JwtAuthorizer
+      Layers:
+        - !Ref SharedValidatorLayer
+        - !Ref RewardRepositoryLayer
   RewardsReaderFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -185,6 +233,9 @@ Resources:
             Auth:
               Unauthorize: {}
               #Authorizer: JwtAuthorizer
+      Layers:
+        - !Ref SharedValidatorLayer
+        - !Ref RewardRepositoryLayer
 
 Outputs:
   RewardsApiEndpoint: # Renamed for clarity

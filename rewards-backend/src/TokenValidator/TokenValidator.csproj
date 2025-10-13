@@ -4,8 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LayerResourceName>TokenValidatorLayer</LayerResourceName>
   </PropertyGroup>
   <ItemGroup>
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
+   <Target Name="CopyToLayer" BeforeTargets="Build">
+    <ItemGroup>
+        <SourceFiles Include="$(OutputPath)/**/*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SourceFiles)" DestinationFolder="$(ProjectDir)dotnet" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
