@@ -97,7 +97,7 @@ This project has a the following endpoints:
 
 It also uses an Authorizer that prevents the execution of some functions if the user is not authenticated.
 
-[!WARNING]
+> [!WARNING]
 > AWS SAM CLI does not guarantee 100% fidelity between authorizers locally and authorizers deployed on AWS. Any application critical behavior should be validated thoroughly before deploying to production.
 > Also, I guess because of this in some scenarios the Authorizer function returns a 504 error instead of a 401 even if the function returned a Forbidden. It is always followed by python errors so I suspect its something related to the tool
 
