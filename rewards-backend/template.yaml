@@ -50,7 +50,7 @@ Resources:
       Cors:
         # AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,Authorization,Cookie'"
-        AllowOrigin: "'http://localhost:3000'"
+        AllowOrigin: "'http://localhost:8000'"
         AllowCredentials: true #required to use credentials in requests
       Auth:
         Authorizers:
