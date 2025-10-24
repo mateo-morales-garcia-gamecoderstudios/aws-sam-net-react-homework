@@ -36,6 +36,10 @@ VITE_API_BASE_URL=http://127.0.0.1:3000/
 ```
 
 ## data for the database
+create a database named `rewards` 
+create a collection named `rewards`
+create a collection named `users`
+
 ### account setup
 You need to setup a user in the database to be able to login and manage the rewards list.
 
