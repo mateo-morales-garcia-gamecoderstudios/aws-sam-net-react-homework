@@ -1,3 +1,8 @@
+### changes
+#### 2025-10-24
+- Changed port of client from 3000 to 8000 to avoid issues with some browsers
+- Extended the readme section about the names of the expected collections and the database name
+
 # Rewards manager with AWS lambda .Net 8
 
 The backend code is in the folder `rewards-backend`, the frontend code is in `client` folder. Each one have its own README.md file.
